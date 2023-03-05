@@ -1,0 +1,62 @@
+import { json } from "@remix-run/node";
+
+import { RemixLink } from "~/components";
+import { configNavigationExamples } from "~/configs";
+import { dataUtilities } from "~/data";
+import { useLoaderData } from "~/hooks";
+import { Layout } from "~/layouts";
+
+import type {
+  LinkItem,
+  LoaderDataExamples,
+  LoaderFunction,
+  SEOHandle,
+  TextItem,
+} from "~/types";
+
+export const handle: SEOHandle = {
+  getSitemapEntries: () => {
+    return [{ route: `/examples`, priority: 0.9 }];
+  },
+};
+
+export const loader: LoaderFunction = async () => {
+  return json<LoaderDataExamples>({
+    examples: configNavigationExamples,
+    utilities: dataUtilities,
+  });
+};
+
+export default function Examples() {
+  const { examples, utilities } = useLoaderData() as LoaderDataExamples;
+
+  return (
+    <Layout>
+      <header>
+        <h1>Examples</h1>
+      </header>
+
+      <article className="prose-config">
+        <h2>Example Components</h2>
+        <ul>
+          {examples.map((item: LinkItem) => {
+            return (
+              <li key={item.text}>
+                <RemixLink prefetch="intent" to={item.to}>
+                  {item.text}
+                </RemixLink>
+              </li>
+            );
+          })}
+        </ul>
+
+        <h2>Example Utilities</h2>
+        <ul>
+          {utilities.map((item: TextItem) => {
+            return <li key={item.text}>{item.text}</li>;
+          })}
+        </ul>
+      </article>
+    </Layout>
+  );
+}
